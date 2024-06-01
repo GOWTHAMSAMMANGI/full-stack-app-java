@@ -1,5 +1,5 @@
 # Build
-FROM debian:10 AS build
+FROM debian:10
 
 RUN apt-get update && apt-get -y install maven
 
