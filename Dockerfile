@@ -1,5 +1,5 @@
 # Build
-FROM debian:10
+FROM debian:10 AS build
 
 RUN apt-get update && apt-get -y install maven
 
@@ -17,11 +17,9 @@ RUN mvn package
 # Run
 FROM openjdk:8u151-jre-alpine3.7
 
-ENV APP_HOME /usr/src/app
+WORKDIR /opt/shipping
 
-COPY target/shopping-cart-0.0.1-SNAPSHOT.jar $APP_HOME/app.jar
-
-WORKDIR $APP_HOME
+COPY target/shopping-cart-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8070
 
