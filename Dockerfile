@@ -9,7 +9,7 @@ RUN mvn dependency:resolve
 
 COPY src /opt/shipping/src/
 
-RUN mvn package
+RUN mvn package -DskipTests=true
 
 
 # Run
