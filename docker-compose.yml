@@ -44,7 +44,7 @@ services:
     logging:
       driver: "gelf"
       options:
-        gelf-address: "tcp://logstash:5044"
+        gelf-address: "tcp://logstash:12201"
     networks:
       - elk
 
