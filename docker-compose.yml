@@ -22,11 +22,16 @@ services:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - logstash-data:/var/lib/logstash
     ports:
-      - 5044:5044
+      - 5044:5044/udp
     depends_on:
       - elasticsearch
     networks:
       - elk
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9600/_node/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
@@ -44,9 +49,10 @@ services:
     logging:
       driver: "gelf"
       options:
-        gelf-address: "tcp://logstash:5044"
+        gelf-address: "udp://logstash:5044"
     depends_on:
-      - logstash
+      logstash:
+        condition: service_healthy
     networks:
       - elk
 
