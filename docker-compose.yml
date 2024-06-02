@@ -49,6 +49,8 @@ services:
       driver: "gelf"
       options:
         gelf-address: "tcp://127.0.0.53:5044"
+    ports:
+      - 80:8070
     networks:
       - elk
 
