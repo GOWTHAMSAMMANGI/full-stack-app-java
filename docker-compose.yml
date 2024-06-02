@@ -44,7 +44,7 @@ services:
     logging:
       driver: "gelf"
       options:
-        gelf-address: "tcp://logstash:5601"
+        gelf-address: "tcp://logstash:5044"
     depends_on:
       - logstash
     networks:
