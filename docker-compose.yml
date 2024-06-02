@@ -46,6 +46,8 @@ services:
       options:
         fluentd-address: "tcp://127.0.0.53:24224"
         tag: "docker.{{.Name}}"
+    ports:
+      - 80:8070
     depends_on:
       - fluentd
     networks:
