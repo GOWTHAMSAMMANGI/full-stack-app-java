@@ -14,24 +14,17 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.12.1
-    container_name: logstash
+  fluentd:
+    image: fluent/fluentd:v1.12-1
+    container_name: fluentd
+    restart: always
     volumes:
-      - ./logstash/config:/usr/share/logstash/config
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-      - logstash-data:/var/lib/logstash
-    ports:
-      - 5044:5044/udp
-    depends_on:
-      - elasticsearch
+      - ./fluentd/conf:/fluentd/etc
+      - fluentd-data:/fluentd/log
+    environment:
+      - FLUENTD_CONF=logstash.conf
     networks:
       - elk
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9600/_node/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.12.1
@@ -43,16 +36,16 @@ services:
     networks:
       - elk
 
-  fs-app:
+  fs-app1:
     build: .
-    container_name: fs-app
+    container_name: fs-app1
     logging:
-      driver: "gelf"
+      driver: "fluentd"
       options:
-        gelf-address: "udp://logstash:5044"
+        fluentd-address: "fluentd:24224"
+        tag: "docker.{{.Name}}"
     depends_on:
-      logstash:
-        condition: service_healthy
+      - fluentd
     networks:
       - elk
 
@@ -62,4 +55,4 @@ networks:
 
 volumes:
   es-data:
-  logstash-data:
+  fluentd-data:
