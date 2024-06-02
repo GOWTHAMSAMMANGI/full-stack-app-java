@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -14,17 +14,19 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
 
-  fluentd:
-    image: fluent/fluentd:v1.12-1
-    container_name: fluentd
-    restart: always
-    ports:
-      - 24224:24224
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.16.2
+    container_name: logstash
     volumes:
-      - ./fluentd/conf:/fluentd/etc
-      - fluentd-data:/fluentd/log
+      - ./logstash/config:/usr/share/logstash/config
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - 5044:5044
     environment:
-      - FLUENTD_CONF=logstash.conf
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      - elasticsearch
     networks:
       - elk
 
@@ -33,23 +35,20 @@ services:
     container_name: kibana
     ports:
       - 5601:5601
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
     depends_on:
       - elasticsearch
     networks:
       - elk
 
-  fs-app1:
+  java-app:
     build: .
-    container_name: fs-app1
+    container_name: fs-app
     logging:
-      driver: "fluentd"
+      driver: "gelf"
       options:
-        fluentd-address: "tcp://127.0.0.53:24224"
-        tag: "docker.{{.Name}}"
-    ports:
-      - 80:8070
-    depends_on:
-      - fluentd
+        gelf-address: "tcp://logstash:5044"
     networks:
       - elk
 
@@ -59,4 +58,3 @@ networks:
 
 volumes:
   es-data:
-  fluentd-data:
