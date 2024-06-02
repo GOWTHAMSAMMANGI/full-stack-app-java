@@ -45,6 +45,8 @@ services:
       driver: "gelf"
       options:
         gelf-address: "tcp://logstash:5601"
+    depends_on:
+      - logstash
     networks:
       - elk
 
