@@ -18,9 +18,8 @@ services:
     image: fluent/fluentd:v1.12-1
     container_name: fluentd
     restart: always
-    expose:
-    - 24224
-    - 24224/udp
+    ports:
+      - 24224:24224
     volumes:
       - ./fluentd/conf:/fluentd/etc
       - fluentd-data:/fluentd/log
