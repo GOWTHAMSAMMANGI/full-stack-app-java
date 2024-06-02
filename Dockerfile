@@ -21,4 +21,4 @@ COPY --from=build /opt/shipping/target/shopping-cart-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8070
 
-ENTRYPOINT exec java -jar app.jar
+ENTRYPOINT exec logstash java -jar app.jar
